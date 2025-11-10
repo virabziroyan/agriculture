@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Պատուհան 3</title>
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: url('file:///C:/Users/Dell/OneDrive/Desktop/g.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    overflow: hidden;
+}
+.back-btn {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    padding: 10px 20px;
+    background: #43a047;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.back-btn:hover { background: #2e7d32; }
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 2px 2px 6px black;
+}
+</style>
+</head>
+<body>
+<button class="back-btn" onclick="goBack()">Վերադառնալ</button>
+<div class="content">Այս էջը Պատուհան 3 է</div>
+
+<script>
+function goBack(){
+    window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

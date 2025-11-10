@@ -11,7 +11,7 @@ body {
     background: url('file:///C:/Users/Dell/OneDrive/Desktop/g.jpg') no-repeat center center fixed;
     background-size: cover;
     color: white;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 header {
     background: rgba(0, 0, 0, 0.6);
@@ -30,6 +30,7 @@ nav a {
     cursor: pointer;
 }
 nav a:hover { color: #8bff84; }
+
 .hero {
     height: calc(100vh - 70px);
     display: flex;
@@ -118,10 +119,8 @@ footer {
     transition: 0.3s;
 }
 .modal button:hover { background: #2e7d32; }
-.modal p { font-size: 14px; color: #444; margin-top: 12px; }
-.modal a { color: #1b5e20; text-decoration: none; font-weight: bold; }
-.modal a:hover { text-decoration: underline; }
 .success-message { font-size: 20px; color: #2e7d32; }
+
 .welcome {
     width: 100%;
     height: 100vh;
@@ -140,7 +139,6 @@ footer {
     left: 0;
     z-index: 999;
 }
-.welcome span { font-size: 100px; margin-top: 20px; }
 #logoutBtn {
     position: absolute;
     top: 20px;
@@ -173,7 +171,8 @@ footer {
     transition: 0.3s;
 }
 .section-box:hover { background: rgba(139,255,132,0.7); color: black; }
-/* ԽԵԿ էջ ոճ */
+
+/* ԽԵԿ էջ */
 .khekPage {
     display: none;
     width: 100%;
@@ -181,11 +180,54 @@ footer {
     background: url('file:///C:/Users/Dell/OneDrive/Desktop/g.jpg') no-repeat center center fixed;
     background-size: cover;
     color: white;
-    font-size: 32px;
-    font-weight: bold;
     text-shadow: 2px 2px 6px black;
-    padding: 20px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
 }
+.khekPage h2 {
+    font-size: 36px;
+    margin-bottom: 40px;
+}
+.khek-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    width: 80%;
+    max-width: 1000px;
+}
+.khek-card {
+    background: rgba(0,0,0,0.6);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    font-size: 22px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.khek-card:hover {
+    background: rgba(139,255,132,0.8);
+    color: black;
+    transform: scale(1.05);
+}
+/* Վերադառնալ կոճակ */
+.back-btn {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    padding: 10px 20px;
+    background: #43a047;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.back-btn:hover { background: #2e7d32; }
 </style>
 </head>
 <body>
@@ -201,13 +243,11 @@ footer {
 </header>
 
 <section class="hero" id="heroSection">
-<div class="about-text" id="aboutText"> կայք</div>
+<div class="about-text" id="aboutText">կայք</div>
 <h2 id="heroTitle">Գյուղատնտեսությունը կյանք է</h2>
 </section>
 
-<footer>
-© 2025 Գյուղատնտեսական կայք | Բոլոր իրավունքները պաշտպանված են
-</footer>
+<footer>© 2025 Գյուղատնտեսական կայք | Բոլոր իրավունքները պաշտպանված են</footer>
 
 <!-- Մուտք -->
 <div class="overlay" id="loginOverlay">
@@ -235,7 +275,7 @@ footer {
 </div>
 </div>
 
-<!-- Բաժին մուտքից հետո -->
+<!-- Մուտքից հետո բաժիններ -->
 <div class="welcome" id="welcomeDiv">
 <button id="userBtn">Օգտատիրոջ տվյալները</button>
 <div class="main-sections">
@@ -249,115 +289,90 @@ footer {
 </div>
 
 <!-- ԽԵԿ էջ -->
-<div class="khekPage" id="khekPage">ԽԵԿ</div>
+<div class="khekPage" id="khekPage">
+<button class="back-btn" onclick="goBack()">Վերադառնալ</button>
+<h2>ԽԵԿ Բաժին</h2>
+<div class="khek-grid">
+<div class="khek-card" onclick="openPage(1)">Պատուհան 1</div>
+<div class="khek-card" onclick="openPage(2)">Պատուհան 2</div>
+<div class="khek-card" onclick="openPage(3)">Պատուհան 3</div>
+<div class="khek-card" onclick="openPage(4)">Պատուհան 4</div>
+<div class="khek-card" onclick="openPage(5)">Պատուհան 5</div>
+<div class="khek-card" onclick="openPage(6)">Պատուհան 6</div>
+<div class="khek-card" onclick="openPage(7)">Պատուհան 7</div>
+<div class="khek-card" onclick="openPage(8)">Պատուհան 8</div>
+</div>
+</div>
 
 <script>
-const aboutBtn = document.getElementById("aboutBtn");
-const goHome = document.getElementById("goHome");
-const aboutText = document.getElementById("aboutText");
-const heroTitle = document.getElementById("heroTitle");
-const loginOverlay = document.getElementById("loginOverlay");
-const registerOverlay = document.getElementById("registerOverlay");
-const openLogin = document.getElementById("openLogin");
-const openRegister = document.getElementById("openRegister");
-const switchToRegister = document.getElementById("switchToRegister");
-const switchToLogin = document.getElementById("switchToLogin");
-const loginBtn = document.getElementById("loginBtn");
-const loginModal = document.getElementById("loginModal");
-const registerBtn = document.getElementById("registerBtn");
-const registerModal = document.getElementById("registerModal");
-const welcomeDiv = document.getElementById("welcomeDiv");
-const logoutBtn = document.getElementById("logoutBtn");
-const userBtn = document.getElementById("userBtn");
+const aboutBtn=document.getElementById("aboutBtn"),
+      goHome=document.getElementById("goHome"),
+      aboutText=document.getElementById("aboutText"),
+      heroTitle=document.getElementById("heroTitle"),
+      loginOverlay=document.getElementById("loginOverlay"),
+      registerOverlay=document.getElementById("registerOverlay"),
+      openLogin=document.getElementById("openLogin"),
+      openRegister=document.getElementById("openRegister"),
+      switchToRegister=document.getElementById("switchToRegister"),
+      switchToLogin=document.getElementById("switchToLogin"),
+      loginBtn=document.getElementById("loginBtn"),
+      loginModal=document.getElementById("loginModal"),
+      registerBtn=document.getElementById("registerBtn"),
+      registerModal=document.getElementById("registerModal"),
+      welcomeDiv=document.getElementById("welcomeDiv"),
+      logoutBtn=document.getElementById("logoutBtn"),
+      userBtn=document.getElementById("userBtn"),
+      khekBtn=document.getElementById("khekBtn"),
+      khekPage=document.getElementById("khekPage");
 
 // Կայքի մասին
-aboutBtn.addEventListener("click", e => {
-    e.preventDefault();
-    aboutText.style.display = "block";
-    heroTitle.textContent = "";
-});
-goHome.addEventListener("click", e => {
-    e.preventDefault();
-    aboutText.style.display = "none";
-    heroTitle.textContent = "Գյուղատնտեսությունը կյանք է";
-});
+aboutBtn.addEventListener("click",e=>{ e.preventDefault();aboutText.style.display="block";heroTitle.textContent=""; });
+goHome.addEventListener("click",e=>{ e.preventDefault();aboutText.style.display="none";heroTitle.textContent="Գյուղատնտեսությունը կյանք է"; });
 
 // Մուտք/Գրանցվել
-openLogin.addEventListener("click", e => { e.preventDefault(); registerOverlay.classList.remove("open"); loginOverlay.classList.add("open"); });
-openRegister.addEventListener("click", e => { e.preventDefault(); loginOverlay.classList.remove("open"); registerOverlay.classList.add("open"); });
-switchToRegister.addEventListener("click", e => { e.preventDefault(); loginOverlay.classList.remove("open"); registerOverlay.classList.add("open"); });
-switchToLogin.addEventListener("click", e => { e.preventDefault(); registerOverlay.classList.remove("open"); loginOverlay.classList.add("open"); });
-
-// Փակել դրսից սեղմելով
-window.addEventListener("click", e => {
-    if(e.target === loginOverlay) loginOverlay.classList.remove("open");
-    if(e.target === registerOverlay) registerOverlay.classList.remove("open");
-});
+openLogin.addEventListener("click",e=>{e.preventDefault();registerOverlay.classList.remove("open");loginOverlay.classList.add("open");});
+openRegister.addEventListener("click",e=>{e.preventDefault();loginOverlay.classList.remove("open");registerOverlay.classList.add("open");});
+switchToRegister.addEventListener("click",e=>{e.preventDefault();loginOverlay.classList.remove("open");registerOverlay.classList.add("open");});
+switchToLogin.addEventListener("click",e=>{e.preventDefault();registerOverlay.classList.remove("open");loginOverlay.classList.add("open");});
+window.addEventListener("click",e=>{ if(e.target===loginOverlay)loginOverlay.classList.remove("open"); if(e.target===registerOverlay)registerOverlay.classList.remove("open"); });
 
 // Մուտք
-loginBtn.addEventListener("click", e => {
-    e.preventDefault();
-    const inputs = loginModal.querySelectorAll("input");
-    let allFilled = true;
-    inputs.forEach(input => { if(!input.value.trim()) allFilled = false; });
-    if(!allFilled){ alert("Խնդրում ենք լրացնել բոլոր դաշտերը"); return; }
-    sessionStorage.setItem("loggedIn","true");
-    showWelcome();
-});
+loginBtn.addEventListener("click",e=>{ e.preventDefault(); const inputs=loginModal.querySelectorAll("input"); let ok=true; inputs.forEach(i=>{if(!i.value.trim())ok=false;}); if(!ok){alert("Լրացրեք բոլոր դաշտերը");return;} sessionStorage.setItem("loggedIn","true"); showWelcome(); });
 
 // Գրանցում
-registerBtn.addEventListener("click", e => {
-    e.preventDefault();
-    const inputs = registerModal.querySelectorAll("input");
-    let allFilled = true;
-    inputs.forEach(input => { if(!input.value.trim()) allFilled = false; });
-    if(!allFilled){ alert("Խնդրում ենք լրացնել բոլոր դաշտերը"); return; }
-    const password = inputs[4].value;
-    const confirmPassword = inputs[5].value;
-    if(password!==confirmPassword){ alert("Գաղտնաբառերը չեն համընկնում"); return; }
-    registerModal.innerHTML = '<h2 class="success-message">Դուք հաջողությամբ գրանցվեցիք ✅</h2>';
-});
+registerBtn.addEventListener("click",e=>{ e.preventDefault(); const i=registerModal.querySelectorAll("input"); let ok=true;i.forEach(x=>{if(!x.value.trim())ok=false;}); if(!ok){alert("Լրացրեք բոլոր դաշտերը");return;} if(i[4].value!==i[5].value){alert("Գաղտնաբառերը չեն համընկնում");return;} registerModal.innerHTML='<h2 class="success-message">Գրանցումը հաջողվեց ✅</h2>'; });
 
 // Ելք
-logoutBtn.addEventListener("click", () => {
-    sessionStorage.removeItem("loggedIn");
-    location.reload();
-});
+logoutBtn.addEventListener("click",()=>{ sessionStorage.removeItem("loggedIn"); khekPage.style.display="none"; welcomeDiv.style.display="none"; document.querySelector("header").style.display="flex"; document.querySelector(".hero").style.display="flex"; document.querySelector("footer").style.display="block"; });
 
 // Օգտատիրոջ տվյալներ
-userBtn.addEventListener("click", () => {
-    alert("Օգտատիրոջ անձնական տվյալները կցուցադրվեն այստեղ։");
-});
+userBtn.addEventListener("click",()=>{alert("Օգտատիրոջ տվյալները կհայտնվեն այստեղ։");});
 
-// Էջի բեռնման ժամանակ ստուգել մուտքի վիճակը
-window.addEventListener("load", () => {
-    if(sessionStorage.getItem("loggedIn")==="true"){
-        showWelcome();
-    }
-});
+// Էջի վիճակ բեռնելիս
+window.addEventListener("load",()=>{if(sessionStorage.getItem("loggedIn")==="true"){showWelcome();}});
 
-function showWelcome() {
-    document.querySelector('header').style.display='none';
-    document.querySelector('.hero').style.display='none';
-    document.querySelector('footer').style.display='none';
-    loginOverlay.classList.remove("open");
-    registerOverlay.classList.remove("open");
-    welcomeDiv.style.display='flex';
+function showWelcome(){
+document.querySelector("header").style.display="none";
+document.querySelector(".hero").style.display="none";
+document.querySelector("footer").style.display="none";
+loginOverlay.classList.remove("open");
+registerOverlay.classList.remove("open");
+welcomeDiv.style.display="flex";
 }
 
-// ԽԵԿ սեղմելիս նոր էջ
-const khekBtn = document.getElementById("khekBtn");
-const khekPage = document.getElementById("khekPage");
+// ԽԵԿ սեղմելիս
+khekBtn.addEventListener("click",()=>{ welcomeDiv.style.display="none"; khekPage.style.display="flex"; });
 
-khekBtn.addEventListener("click", () => {
-    // Թաքցնել մնացած
-    welcomeDiv.style.display='none';
-    document.querySelector('header').style.display='none';
-    document.querySelector('.hero').style.display='none';
-    document.querySelector('footer').style.display='none';
-    // Ցույց տալ ԽԵԿ էջը
-    khekPage.style.display='block';
-});
+// Վերադառնալ կոճակ
+function goBack(){ 
+  khekPage.style.display="none";
+  welcomeDiv.style.display="flex";
+}
+
+// Բացել համապատասխան էջ (page1.html ... page8.html)
+function openPage(num){
+  window.location.href = `page${num}.html`;
+}
 </script>
 </body>
 </html>
