@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Կենդանու ինֆո</title>
+<style>
+  body { font-family: system-ui, -apple-system, Arial, sans-serif; margin: 0; background:#f7f9fc; color:#222; }
+  .container { max-width: 800px; margin: 36px auto; padding: 20px; }
+  h1, h2 { margin-bottom: 12px; }
+  .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 10px; border-bottom:1px solid #eef3f8; text-align:left; }
+  th { background:#f5f8fc; }
+  input, select { padding:6px; border-radius:6px; border:1px solid #ccc; width:100%; box-sizing:border-box; }
+  .form-inline { display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px; margin-top:10px; align-items:end; }
+  button { padding:6px 12px; border-radius:6px; border:none; background:#2b6cb0; color:#fff; cursor:pointer; }
+  button.danger { background:#e53e3e; }
+  .back-btn { display:inline-block; padding:8px 14px; background:#2b6cb0; color:#fff; border-radius:6px; text-decoration:none; margin-bottom:20px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="tvyalneri_mutq.html" class="back-btn">&larr; Վերադառնալ</a>
+  <h1>Կենդանու տվյալներ</h1>
+  <div id="animalInfo" class="card"></div>
+
+  <h2>Պատվաստումներ</h2>
+  <div id="vaccinations" class="card">
+    <table>
+      <thead>
+        <tr><th>Անուն</th><th>Ամսաթիվ</th><th>Նշումներ</th><th>Գործողություն</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="form-inline">
+      <input id="vName" placeholder="Պատվաստման անուն">
+      <input id="vDate" type="date">
+      <input id="vNotes" placeholder="Նշումներ">
+      <button id="addVaccine">Ավելացնել</button>
+    </div>
+  </div>
+
+  <h2>Բուժումներ</h2>
+  <div id="treatments" class="card">
+    <table>
+      <thead>
+        <tr><th>Անուն</th><th>Ամսաթիվ</th><th>Նշումներ</th><th>Գործողություն</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="form-inline">
+      <input id="tName" placeholder="Բուժման անուն">
+      <input id="tDate" type="date">
+      <input id="tNotes" placeholder="Նշումներ">
+      <button id="addTreatment">Ավելացնել</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function getQueryParam(name){
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+const tagId = getQueryParam('tagId');
+const STORAGE_KEY = 'farm_animals_v1';
+let animals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+let animal = animals.find(a=>a.tagId===tagId);
+
+function saveAnimals(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(animals));
+}
+
+function renderAnimalInfo(){
+  if(!animal){
+    document.getElementById('animalInfo').innerHTML = '<p>Կենդանի չի գտնվել</p>';
+    return;
+  }
+  document.getElementById('animalInfo').innerHTML = `
+    <p><strong>ID:</strong> ${animal.tagId}</p>
+    <p><strong>Տեսակ:</strong> ${animal.type}</p>
+    <p><strong>Տոհմ:</strong> ${animal.breed||''}</p>
+    <p><strong>Սեռ:</strong> ${animal.sex}</p>
+    <p><strong>Ծննդյան ամսաթիվ:</strong> ${animal.birthDate||''}</p>
+  `;
+}
+
+function renderTable(tableId, items){
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML='';
+  if(!items || !items.length){
+    tbody.innerHTML='<tr><td colspan="4">Տվյալներ չեն մուտքագրվել</td></tr>';
+    return;
+  }
+  items.forEach((item,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.name}</td>
+      <td>${item.date}</td>
+      <td>${item.notes||''}</td>
+      <td><button data-index="${i}" class="danger">Ջնջել</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function init(){
+  renderAnimalInfo();
+  animal.vaccinations = animal.vaccinations||[];
+  animal.treatments = animal.treatments||[];
+  renderTable('vaccinations', animal.vaccinations);
+  renderTable('treatments', animal.treatments);
+
+  document.getElementById('addVaccine').addEventListener('click', ()=>{
+    const name = document.getElementById('vName').value.trim();
+    const date = document.getElementById('vDate').value;
+    const notes = document.getElementById('vNotes').value.trim();
+    if(!name || !date) return alert('Լրացրեք անունն ու ամսաթիվը');
+    animal.vaccinations.push({name,date,notes});
+    saveAnimals();
+    renderTable('vaccinations', animal.vaccinations);
+    document.getElementById('vName').value=''; document.getElementById('vDate').value=''; document.getElementById('vNotes').value='';
+  });
+
+  document.getElementById('addTreatment').addEventListener('click', ()=>{
+    const name = document.getElementById('tName').value.trim();
+    const date = document.getElementById('tDate').value;
+    const notes = document.getElementById('tNotes').value.trim();
+    if(!name || !date) return alert('Լրացրեք անունն ու ամսաթիվը');
+    animal.treatments.push({name,date,notes});
+    saveAnimals();
+    renderTable('treatments', animal.treatments);
+    document.getElementById('tName').value=''; document.getElementById('tDate').value=''; document.getElementById('tNotes').value='';
+  });
+
+  document.querySelector('#vaccinations tbody').addEventListener('click', e=>{
+    if(e.target.tagName==='BUTTON'){
+      const idx = e.target.dataset.index;
+      animal.vaccinations.splice(idx,1);
+      saveAnimals();
+      renderTable('vaccinations', animal.vaccinations);
+    }
+  });
+
+  document.querySelector('#treatments tbody').addEventListener('click', e=>{
+    if(e.target.tagName==='BUTTON'){
+      const idx = e.target.dataset.index;
+      animal.treatments.splice(idx,1);
+      saveAnimals();
+      renderTable('treatments', animal.treatments);
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>

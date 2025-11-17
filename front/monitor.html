@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Կենդանիների մոնիթորինգ</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: system-ui, Arial, sans-serif; margin:0; background:#f7f9fc; color:#222; }
+.container { max-width:1200px; margin:36px auto; padding:20px; display:flex; gap:20px; flex-wrap:wrap; }
+.card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); flex:1 1 500px; }
+h1 { margin:0 0 20px; }
+canvas { background:#fff; border-radius:12px; padding:10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Տարիք / Սեռ / Տեսակ գրաֆիկ</h1>
+    <canvas id="mainChart" width="500" height="400"></canvas>
+  </div>
+
+  <div class="card">
+    <h1>Պատվաստումներ և բուժումներ</h1>
+    <canvas id="treatmentChart" width="500" height="400"></canvas>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'farm_animals_v1';
+let animals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+
+// --- Տարիք խմբավորումներ
+function getAgeGroup(age){
+  if(age<=1) return '0-1';
+  if(age<=3) return '2-3';
+  if(age<=5) return '4-5';
+  return '5+';
+}
+
+function ageFromBirth(birth){
+  if(!birth) return 0;
+  const b = new Date(birth);
+  const now = new Date();
+  let years = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if(m<0 || (m===0 && now.getDate()<b.getDate())) years--;
+  return years;
+}
+
+// --- Stacked Bar Chart (Տարիք / Սեռ / Տեսակ)
+const ctxMain = document.getElementById('mainChart').getContext('2d');
+const types = ['Կով','Հորթ','Երինջ','Մոզի','Ցուլ'];
+const genders = ['արու','էգ'];
+const ageGroups = ['0-1','2-3','4-5','5+'];
+
+function prepareMainDatasets(){
+  const datasets=[];
+  genders.forEach((gender,i)=>{
+    const data = types.map(t=>animals.filter(a=>a.type===t && a.sex===gender).length);
+    datasets.push({
+      label:`Սեռ: ${gender}`,
+      data,
+      backgroundColor:`rgba(${50+i*100},130,220,0.7)`,
+      borderColor:`rgba(${50+i*100},130,220,1)`,
+      borderWidth:1
+    });
+  });
+
+  ageGroups.forEach((age,i)=>{
+    const data = types.map(t=>animals.filter(a=>a.type===t && getAgeGroup(ageFromBirth(a.birthDate))===age).length);
+    datasets.push({
+      label:`Տարիք: ${age}`,
+      data,
+      backgroundColor:`rgba(220,${50+i*50},50,0.6)`,
+      borderColor:`rgba(220,${50+i*50},50,1)`,
+      borderWidth:1
+    });
+  });
+  return datasets;
+}
+
+const mainChart = new Chart(ctxMain,{
+  type:'bar',
+  data:{ labels: types, datasets: prepareMainDatasets() },
+  options:{
+    responsive:false,
+    plugins:{ legend:{ position:'bottom' } },
+    scales:{ x:{ stacked:true }, y:{ stacked:true, beginAtZero:true, ticks:{ stepSize:1 } } }
+  }
+});
+
+// --- Pie/Doughnut Chart (Պատվաստումներ և Բուժումներ)
+const ctxTreatment = document.getElementById('treatmentChart').getContext('2d');
+
+function prepareTreatmentData(){
+  const vaccineCounts = {};
+  const treatmentCounts = {};
+
+  animals.forEach(a=>{
+    if(a.vaccinations) a.vaccinations.forEach(v=>{
+      vaccineCounts[v.name] = (vaccineCounts[v.name]||0)+1;
+    });
+    if(a.treatments) a.treatments.forEach(t=>{
+      treatmentCounts[t.name] = (treatmentCounts[t.name]||0)+1;
+    });
+  });
+
+  const labels = [...new Set([...Object.keys(vaccineCounts), ...Object.keys(treatmentCounts)])];
+  const data = labels.map(l=>(vaccineCounts[l]||0)+(treatmentCounts[l]||0));
+
+  return { labels, data };
+}
+
+const treatmentData = prepareTreatmentData();
+const treatmentChart = new Chart(ctxTreatment,{
+  type:'doughnut',
+  data:{
+    labels: treatmentData.labels,
+    datasets:[{
+      label:'Պատվաստումներ / Բուժումներ',
+      data: treatmentData.data,
+      backgroundColor: treatmentData.labels.map((_,i)=>`hsl(${i*50%360},70%,60%)`),
+      borderColor:'#fff',
+      borderWidth:2
+    }]
+  },
+  options:{ responsive:false, plugins:{ legend:{ position:'bottom' } } }
+});
+
+// --- Թարմացնել հիմնական գրաֆիկը
+function updateCharts(){
+  mainChart.data.datasets = prepareMainDatasets();
+  mainChart.update();
+
+  const td = prepareTreatmentData();
+  treatmentChart.data.labels = td.labels;
+  treatmentChart.data.datasets[0].data = td.data;
+  treatmentChart.update();
+}
+
+updateCharts();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Մոնիթորինգ — Գրաֆիկ</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f0f4f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+h1 { color: #2b6cb0; margin-bottom: 25px; }
+canvas {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(20,30,60,0.08);
+}
+</style>
+</head>
+<body>
+
+<h1>Ֆերմայի կենդանիների մոնիթորինգ</h1>
+<canvas id="animalChart" width="900" height="400"></canvas>
+
+<script>
+const STORAGE_KEY = 'farm_animals_v1';
+const ctx = document.getElementById('animalChart').getContext('2d');
+
+const chart = new Chart(ctx, {
+  type: 'bar',
+  data: { labels:['Կով','Հորթ','Երինջ','Մոզի','Ցուլ'], datasets:[] },
+  options: {
+    responsive: false,
+    scales: { x:{stacked:true}, y:{stacked:true, beginAtZero:true, stepSize:1} },
+    plugins: { legend:{position:'bottom'} }
+  }
+});
+
+function getAgeGroup(birthDate){
+  if(!birthDate) return '0-1';
+  const b=new Date(birthDate), now=new Date();
+  const years = now.getFullYear()-b.getFullYear();
+  if(years<=1) return '0-1';
+  if(years<=3) return '2-3';
+  if(years<=5) return '4-5';
+  return '5+';
+}
+
+function updateChart(){
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const types = ['Կով','Հորթ','Երինջ','Մոզի','Ցուլ'];
+  const genders = ['արու','էգ'];
+  const ageGroups = ['0-1','2-3','4-5','5+'];
+  const datasets = [];
+
+  // Սեռ
+  genders.forEach((g,i)=>{
+    datasets.push({
+      label:'Սեռ — '+g,
+      data: types.map(t=>data.filter(a=>a.type===t && a.sex===g).length),
+      backgroundColor:`rgba(${50+i*100},130,220,0.7)`
+    });
+  });
+
+  // Տարիք
+  ageGroups.forEach((ag,i)=>{
+    datasets.push({
+      label:'Տարիք — '+ag,
+      data: types.map(t=>data.filter(a=>a.type===t && getAgeGroup(a.birthDate)===ag).length),
+      backgroundColor:`rgba(220,${60+i*40},60,0.6)`
+    });
+  });
+
+  chart.data.datasets = datasets;
+  chart.update();
+}
+
+// Առաջին անգամ
+updateChart();
+
+// Ավտոմատ թարմացում, երբ localStorage փոփոխվում է մյուս էջում
+window.addEventListener('storage', (event)=>{
+  if(event.key===STORAGE_KEY){
+    updateChart();
+  }
+});
+</script>
+
+</body>
+</html>
