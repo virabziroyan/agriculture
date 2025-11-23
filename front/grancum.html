@@ -1,210 +1,253 @@
 <!doctype html>
 <html lang="hy">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Կենդանիների մուտքագրում — Բազա</title>
-  <style>
-    :root{--bg:#f7f9fc;--card:#fff;--accent:#2b6cb0;--danger:#e53e3e}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#222}
-    .container{max-width:980px;margin:36px auto;padding:18px}
-    h1{margin:0 0 12px;font-size:20px}
-    .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,60,0.06)}
-    form{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end}
-    label{display:block;font-size:12px;margin-bottom:6px;color:#444}
-    input[type=text], input[type=date], select{width:100%;padding:8px;border-radius:6px;border:1px solid #dfe7ef}
-    .actions{display:flex;gap:8px}
-    button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-    button.warning{background:#4a5568}
-    button.danger{background:var(--danger)}
-    table{width:100%;border-collapse:collapse;margin-top:14px}
-    th,td{padding:10px;border-bottom:1px solid #eef3f8;text-align:left}
-    th{background:#fbfdff;font-size:13px}
-    .small{font-size:13px;color:#666}
-    .right{text-align:right}
-    a.tag-link{color:#2b6cb0;text-decoration:underline;cursor:pointer;}
-    @media(max-width:800px){form{grid-template-columns:1fr} .actions{justify-content:flex-end}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Կենդանիների մուտքագրում — Բազա</title>
+<style>
+  :root{--bg:#f7f9fc;--card:#fff;--accent:#2b6cb0;--danger:#e53e3e}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#222}
+  .container{max-width:980px;margin:36px auto;padding:18px}
+  h1{margin:0 0 12px;font-size:20px}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,60,0.06)}
+  form{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end}
+  label{display:block;font-size:12px;margin-bottom:6px;color:#444}
+  input[type=text], input[type=date], select{width:100%;padding:8px;border-radius:6px;border:1px solid #dfe7ef}
+  .actions{display:flex;gap:8px}
+  button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  button.warning{background:#4a5568}
+  button.danger{background:var(--danger)}
+  table{width:100%;border-collapse:collapse;margin-top:14px}
+  th,td{padding:10px;border-bottom:1px solid #eef3f8;text-align:left}
+  th{background:#fbfdff;font-size:13px}
+  .small{font-size:13px;color:#666}
+  .right{text-align:right}
+  a.tag-link{color:#2b6cb0;text-decoration:underline;cursor:pointer;}
+  #chartContainer{margin-top:20px;display:none;}
+  @media(max-width:800px){form{grid-template-columns:1fr} .actions{justify-content:flex-end}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1> Տվյալների գրանցում</h1>
+<div class="container">
+  <h1>Տվյալների գրանցում</h1>
 
-    <div class="card">
-      <form id="animalForm">
-        <div>
-          <label for="tagId">Կենդանու ID</label>
-          <input id="tagId" type="text" placeholder="օր. 1001" required>
-        </div>
+  <div class="card">
+    <form id="animalForm">
+      <div>
+        <label for="tagId">Կենդանու ID</label>
+        <input id="tagId" type="text" placeholder="օր. 1001" required>
+      </div>
 
-        <div>
-          <label for="type">Տեսակ</label>
-          <select id="type">
-            <option value="Կով">Կով</option>
-            <option value="Հորթ">Հորթ</option>
-            <option value="Երինջ">Երինջ</option>
-            <option value="Մոզի">Մոզի</option>
-            <option value="Ցուլ">Ցուլ</option>
-          </select>
-        </div>
+      <div>
+        <label for="type">Տեսակ</label>
+        <select id="type">
+          <option value="Կով">Կով</option>
+          <option value="Հորթ">Հորթ</option>
+          <option value="Երինջ">Երինջ</option>
+          <option value="Մոզի">Մոզի</option>
+          <option value="Ցուլ">Ցուլ</option>
+        </select>
+      </div>
 
-        <div>
-          <label for="breed">Տոհմ</label>
-          <input id="breed" type="text" placeholder="օր. Սիմենթալ">
-        </div>
+      <div>
+        <label for="breed">Տոհմ</label>
+        <input id="breed" type="text" placeholder="օր. Սիմենթալ">
+      </div>
 
-        <div>
-          <label for="sex">Սեռ</label>
-          <select id="sex">
-            <option value="էգ">Էգ</option>
-            <option value="արու">Արու</option>
-          </select>
-        </div>
+      <div>
+        <label for="sex">Սեռ</label>
+        <select id="sex">
+          <option value="էգ">Էգ</option>
+          <option value="արու">Արու</option>
+        </select>
+      </div>
 
-        <div>
-          <label for="birthDate">Ծննդյան ամսաթիվ</label>
-          <input id="birthDate" type="date">
-        </div>
+      <div>
+        <label for="birthDate">Ծննդյան ամսաթիվ</label>
+        <input id="birthDate" type="date">
+      </div>
 
-        <div class="actions">
-          <button id="saveBtn" type="submit">Ավելացնել</button>
-          <button id="clearBtn" type="button" class="warning">Մաքրել</button>
-        </div>
-      </form>
+      <div class="actions">
+        <button id="saveBtn" type="submit">Ավելացնել</button>
+        <button id="clearBtn" type="button" class="warning">Մաքրել</button>
+      </div>
+    </form>
 
-      <table id="animalsTable" aria-live="polite">
-        <thead>
-          <tr>
-            <th>Կենդանու ID</th>
-            <th>Տեսակ</th>
-            <th>Տոհմ</th>
-            <th>Սեռ</th>
-            <th>Ծննդյան</th>
-            <th>Տարիք</th>
-            <th class="right">Գործողություններ</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-    </div>
+    <table id="animalsTable" aria-live="polite">
+      <thead>
+        <tr>
+          <th>Կենդանու ID</th>
+          <th>Տեսակ</th>
+          <th>Տոհմ</th>
+          <th>Սեռ</th>
+          <th>Ծննդյան</th>
+          <th>Տարիք</th>
+          <th class="right">Գործողություններ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
-  <script>
-    const form = document.getElementById('animalForm');
-    const tagIdInput = document.getElementById('tagId');
-    const typeInput = document.getElementById('type');
-    const breedInput = document.getElementById('breed');
-    const sexInput = document.getElementById('sex');
-    const birthInput = document.getElementById('birthDate');
-    const saveBtn = document.getElementById('saveBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const tbody = document.querySelector('#animalsTable tbody');
+  <div id="chartContainer">
+    <h2>Աճի գրաֆիկ</h2>
+    <canvas id="growthChart" width="800" height="400"></canvas>
+  </div>
+</div>
 
-    const STORAGE_KEY = 'farm_animals_v1';
-    let animals = [];
-    let editingId = null;
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const form = document.getElementById('animalForm');
+const tagIdInput = document.getElementById('tagId');
+const typeInput = document.getElementById('type');
+const breedInput = document.getElementById('breed');
+const sexInput = document.getElementById('sex');
+const birthInput = document.getElementById('birthDate');
+const saveBtn = document.getElementById('saveBtn');
+const clearBtn = document.getElementById('clearBtn');
+const tbody = document.querySelector('#animalsTable tbody');
+const STORAGE_KEY = 'farm_animals_v1';
+let animals = [];
+let editingId = null;
+let growthChartInstance = null;
 
-    function load() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      animals = raw ? JSON.parse(raw) : [];
-    }
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  animals = raw ? JSON.parse(raw) : [];
+}
 
-    function saveStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(animals));
-    }
+function saveStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(animals));
+}
 
-    function ageFrom(birth) {
-      if (!birth) return '';
-      const b = new Date(birth);
-      const now = new Date();
-      let years = now.getFullYear() - b.getFullYear();
-      let months = now.getMonth() - b.getMonth();
-      let days = now.getDate() - b.getDate();
-      if (days < 0) months--;
-      if (months < 0) { years--; months+=12; }
-      const parts=[];
-      if(years) parts.push(years+' տ.');
-      if(months) parts.push(months+' ամ');
-      if(!parts.length) parts.push('0 ամ');
-      return parts.join(' ');
-    }
+function ageFrom(birth) {
+  if (!birth) return '';
+  const b = new Date(birth);
+  const now = new Date();
+  let years = now.getFullYear() - b.getFullYear();
+  let months = now.getMonth() - b.getMonth();
+  let days = now.getDate() - b.getDate();
+  if (days < 0) months--;
+  if (months < 0) { years--; months+=12; }
+  const parts=[];
+  if(years) parts.push(years+' տ.');
+  if(months) parts.push(months+' ամ');
+  if(!parts.length) parts.push('0 ամ');
+  return parts.join(' ');
+}
 
-    function escapeHtml(str){
-      if (!str && str !== 0) return '';
-      return String(str).replace(/[&<>"']/g, m => ( {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m] ));
-    }
+function escapeHtml(str){
+  if (!str && str !== 0) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
+}
 
-    function render() {
-      tbody.innerHTML = '';
-      if (!animals.length) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="7" class="small">Հերթը դեռ դատարկ է — ավելացրեք կենդանու տվյալներ</td>';
-        tbody.appendChild(tr);
-        return;
-      }
+function render() {
+  tbody.innerHTML = '';
+  if (!animals.length) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="7" class="small">Հերթը դեռ դատարկ է — ավելացրեք կենդանու տվյալներ</td>';
+    tbody.appendChild(tr);
+    return;
+  }
 
-      animals.forEach(a=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><a class="tag-link" href="animal_info.html?tagId=${encodeURIComponent(a.tagId)}">${escapeHtml(a.tagId)}</a></td>
-          <td>${escapeHtml(a.type)}</td>
-          <td>${escapeHtml(a.breed||'')}</td>
-          <td>${escapeHtml(a.sex)}</td>
-          <td>${a.birthDate||''}</td>
-          <td>${ageFrom(a.birthDate)}</td>
-          <td class="right">
-            <button data-action="edit" data-id="${a.tagId}">Խմբագրել</button>
-            <button data-action="del" data-id="${a.tagId}" class="danger">Ջնջել</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+  animals.forEach(a=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><a class="tag-link" href="animal_info.html?tagId=${encodeURIComponent(a.tagId)}">${escapeHtml(a.tagId)}</a></td>
+      <td>${escapeHtml(a.type)}</td>
+      <td>${escapeHtml(a.breed||'')}</td>
+      <td>${escapeHtml(a.sex)}</td>
+      <td>${a.birthDate||''}</td>
+      <td>${ageFrom(a.birthDate)}</td>
+      <td class="right">
+        <button data-action="edit" data-id="${a.tagId}">Խմբագրել</button>
+        <button data-action="del" data-id="${a.tagId}" class="danger">Ջնջել</button>
+        <button data-action="growth" data-id="${a.tagId}" 
+            style="margin-left:5px;background:#38a169;color:#fff;border-radius:5px;padding:4px 6px;border:0;cursor:pointer;">
+          Աճի գրաֆիկ
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-    function resetForm() { form.reset(); editingId=null; saveBtn.textContent='Ավելացնել'; }
+function resetForm() { form.reset(); editingId=null; saveBtn.textContent='Ավելացնել'; }
 
-    form.addEventListener('submit', e=>{
-      e.preventDefault();
-      const tagId=tagIdInput.value.trim();
-      if(!tagId) return alert('Մուտքագրեք կենդանու ID');
+function showGrowthChart(tagId){
+  const animal = animals.find(a=>a.tagId===tagId);
+  if(!animal || !animal.weightHistory || !animal.weightHistory.length) {
+    alert('Քաշի տվյալներ չկան');
+    return;
+  }
 
-      const obj={ tagId, type:typeInput.value, breed:breedInput.value.trim(), sex:sexInput.value, birthDate:birthInput.value||'' };
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  const dates = animal.weightHistory.map(w=>w.date);
+  const weights = animal.weightHistory.map(w=>w.weight);
 
-      if(editingId){
-        const idx = animals.findIndex(x=>x.tagId===editingId);
-        if(idx!==-1) animals[idx]=obj;
-      } else {
-        if(animals.some(x=>x.tagId===tagId)) return alert('Այս ID-ով կենդանի արդեն կա։');
-        animals.push(obj);
-      }
+  if(growthChartInstance) growthChartInstance.destroy();
 
-      saveStorage(); render(); resetForm();
-    });
+  growthChartInstance = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:dates,
+      datasets:[{
+        label:'Քաշ (կգ)',
+        data:weights,
+        fill:false,
+        borderColor:'#38a169',
+        tension:0.1
+      }]
+    },
+    options:{responsive:true, plugins:{legend:{display:true}}}
+  });
 
-    tbody.addEventListener('click', e=>{
-      const btn=e.target.closest('button');
-      if(!btn) return;
-      const action=btn.dataset.action;
-      const id=btn.dataset.id;
-      if(action==='del'){
-        if(!confirm('Ցանկանու՞մ եք ջնջել այս գրառումը?')) return;
-        animals=animals.filter(x=>x.tagId!==id); saveStorage(); render();
-      } else if(action==='edit'){
-        const item=animals.find(x=>x.tagId===id);
-        if(!item) return;
-        tagIdInput.value=item.tagId;
-        typeInput.value=item.type;
-        breedInput.value=item.breed||'';
-        sexInput.value=item.sex;
-        birthInput.value=item.birthDate;
-        editingId=item.tagId; saveBtn.textContent='Պահպանել փոփոխությունները';
-      }
-    });
+  document.getElementById('chartContainer').style.display='block';
+}
 
-    clearBtn.addEventListener('click', ()=>{ resetForm(); });
+form.addEventListener('submit', e=>{
+  e.preventDefault();
+  const tagId=tagIdInput.value.trim();
+  if(!tagId) return alert('Մուտքագրեք կենդանու ID');
 
-    load(); render();
-  </script>
+  const obj={ tagId, type:typeInput.value, breed:breedInput.value.trim(), sex:sexInput.value, birthDate:birthInput.value||'', weightHistory:[{date:"2025-01-01",weight:100}] };
+
+  if(editingId){
+    const idx = animals.findIndex(x=>x.tagId===editingId);
+    if(idx!==-1) animals[idx]=obj;
+  } else {
+    if(animals.some(x=>x.tagId===tagId)) return alert('Այս ID-ով կենդանի արդեն կա։');
+    animals.push(obj);
+  }
+
+  saveStorage(); render(); resetForm();
+});
+
+tbody.addEventListener('click', e=>{
+  const btn=e.target.closest('button');
+  if(!btn) return;
+  const action=btn.dataset.action;
+  const id=btn.dataset.id;
+  if(action==='del'){
+    if(!confirm('Ցանկանու՞մ եք ջնջել այս գրառումը?')) return;
+    animals=animals.filter(x=>x.tagId!==id); saveStorage(); render();
+  } else if(action==='edit'){
+    const item=animals.find(x=>x.tagId===id);
+    if(!item) return;
+    tagIdInput.value=item.tagId;
+    typeInput.value=item.type;
+    breedInput.value=item.breed||'';
+    sexInput.value=item.sex;
+    birthInput.value=item.birthDate;
+    editingId=item.tagId; saveBtn.textContent='Պահպանել փոփոխությունները';
+  } else if(action==='growth'){
+    showGrowthChart(id);
+  }
+});
+
+clearBtn.addEventListener('click', ()=>{ resetForm(); });
+
+load(); render();
+</script>
 </body>
 </html>

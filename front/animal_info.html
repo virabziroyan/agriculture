@@ -12,16 +12,23 @@
   table { width: 100%; border-collapse: collapse; margin-top: 10px; }
   th, td { padding: 10px; border-bottom:1px solid #eef3f8; text-align:left; }
   th { background:#f5f8fc; }
-  input, select { padding:6px; border-radius:6px; border:1px solid #ccc; width:100%; box-sizing:border-box; }
-  .form-inline { display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px; margin-top:10px; align-items:end; }
+  input { padding:6px; border-radius:6px; border:1px solid #ccc; width:100%; box-sizing:border-box; }
+  .form-inline { display:grid; grid-template-columns:2fr 1fr auto; gap:8px; margin-top:10px; align-items:end; }
   button { padding:6px 12px; border-radius:6px; border:none; background:#2b6cb0; color:#fff; cursor:pointer; }
   button.danger { background:#e53e3e; }
   .back-btn { display:inline-block; padding:8px 14px; background:#2b6cb0; color:#fff; border-radius:6px; text-decoration:none; margin-bottom:20px; }
+  canvas { background:#fff; border-radius:12px; padding:10px; box-shadow:0 4px 12px rgba(0,0,0,0.06); margin-top:20px; }
+  img.animal-img { max-width:200px; border-radius:8px; margin-top:10px; cursor:pointer; }
+  /* Modal styles */
+  .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
+  .modal img { max-width:90%; max-height:90%; border-radius:10px; }
+  .modal .close { position:absolute; top:20px; right:30px; font-size:28px; color:#fff; cursor:pointer; }
+  .image-actions { margin-top:5px; display:flex; gap:5px; }
 </style>
 </head>
 <body>
 <div class="container">
-  <a href="tvyalneri_mutq.html" class="back-btn">&larr; Վերադառնալ</a>
+  <a href="grancum.html" class="back-btn">&larr; Վերադառնալ</a>
   <h1>Կենդանու տվյալներ</h1>
   <div id="animalInfo" class="card"></div>
 
@@ -56,52 +63,134 @@
       <button id="addTreatment">Ավելացնել</button>
     </div>
   </div>
+
+  <h2>Քաշ</h2>
+  <div id="weights" class="card">
+    <table>
+      <thead>
+        <tr><th>Ամսաթիվ</th><th>Քաշ (կգ)</th><th>Գործողություն</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="form-inline">
+      <input id="wDate" type="date">
+      <input id="wWeight" type="number" placeholder="Քաշ (կգ)" min="0">
+      <button id="addWeight">Ավելացնել</button>
+    </div>
+    <canvas id="growthChart" height="200"></canvas>
+  </div>
 </div>
 
-<script>
-function getQueryParam(name){
-  return new URLSearchParams(window.location.search).get(name);
-}
+<!-- Modal for image -->
+<div id="imgModal" class="modal">
+  <span class="close">&times;</span>
+  <img id="modalImg" src="">
+</div>
 
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
 const tagId = getQueryParam('tagId');
 const STORAGE_KEY = 'farm_animals_v1';
 let animals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
 let animal = animals.find(a=>a.tagId===tagId);
 
-function saveAnimals(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(animals));
-}
+function saveAnimals(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(animals)); }
 
 function renderAnimalInfo(){
-  if(!animal){
-    document.getElementById('animalInfo').innerHTML = '<p>Կենդանի չի գտնվել</p>';
-    return;
-  }
-  document.getElementById('animalInfo').innerHTML = `
+  if(!animal){ document.getElementById('animalInfo').innerHTML='<p>Կենդանի չի գտնվել</p>'; return; }
+  document.getElementById('animalInfo').innerHTML=`
     <p><strong>ID:</strong> ${animal.tagId}</p>
     <p><strong>Տեսակ:</strong> ${animal.type}</p>
     <p><strong>Տոհմ:</strong> ${animal.breed||''}</p>
     <p><strong>Սեռ:</strong> ${animal.sex}</p>
     <p><strong>Ծննդյան ամսաթիվ:</strong> ${animal.birthDate||''}</p>
+
+    <div style="margin-top:10px;">
+      <label><strong>Նկար:</strong></label><br>
+      <input type="file" id="animalImageInput" accept="image/*">
+      <div id="animalImagePreview" class="image-actions">
+        ${animal.image ? `<img class="animal-img" src="${animal.image}"> <button id="deleteImage" class="danger">Ջնջել նկարը</button>` : ''}
+      </div>
+    </div>
   `;
+
+  const imageInput = document.getElementById('animalImageInput');
+  const imagePreview = document.getElementById('animalImagePreview');
+
+  imageInput.addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      const base64 = ev.target.result;
+      animal.image = base64;
+      saveAnimals();
+      imagePreview.innerHTML = `<img class="animal-img" src="${base64}"> <button id="deleteImage" class="danger">Ջնջել նկարը</button>`;
+      attachImageActions();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function attachImageActions(){
+    const img = imagePreview.querySelector('img.animal-img');
+    const delBtn = document.getElementById('deleteImage');
+    if(img){
+      img.addEventListener('click', ()=>{
+        const modal = document.getElementById('imgModal');
+        const modalImg = document.getElementById('modalImg');
+        modal.style.display='flex';
+        modalImg.src = img.src;
+      });
+    }
+    if(delBtn){
+      delBtn.addEventListener('click', ()=>{
+        if(confirm('Ցանկանու՞մ եք ջնջել նկարը?')){
+          animal.image = '';
+          saveAnimals();
+          imagePreview.innerHTML = '';
+        }
+      });
+    }
+  }
+  attachImageActions();
 }
 
+// Modal close
+document.querySelector('.modal .close').addEventListener('click',()=>{ document.getElementById('imgModal').style.display='none'; });
+document.getElementById('imgModal').addEventListener('click', e=>{ if(e.target.id==='imgModal') e.currentTarget.style.display='none'; });
+
+// Rest of original code (vaccinations, treatments, weights, chart)
 function renderTable(tableId, items){
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML='';
   if(!items || !items.length){
-    tbody.innerHTML='<tr><td colspan="4">Տվյալներ չեն մուտքագրվել</td></tr>';
+    tbody.innerHTML=`<tr><td colspan="${tableId==='weights'?3:4}">Տվյալներ չեն մուտքագրվել</td></tr>`;
     return;
   }
   items.forEach((item,i)=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.name}</td>
-      <td>${item.date}</td>
-      <td>${item.notes||''}</td>
-      <td><button data-index="${i}" class="danger">Ջնջել</button></td>
-    `;
+    if(tableId==='weights'){
+      tr.innerHTML = `<td>${item.date}</td><td>${item.weight}</td><td><button data-index="${i}" class="danger">Ջնջել</button></td>`;
+    } else {
+      tr.innerHTML = `<td>${item.name}</td><td>${item.date}</td><td>${item.notes||''}</td><td><button data-index="${i}" class="danger">Ջնջել</button></td>`;
+    }
     tbody.appendChild(tr);
+  });
+  if(tableId==='weights') updateChart();
+}
+
+function updateChart(){
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  const sorted = animal.weightHistory.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(w=>w.date);
+  const data = sorted.map(w=>w.weight);
+  if(window.weightChart) window.weightChart.destroy();
+  window.weightChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ label:'Քաշ (կգ)', data, borderColor:'#2b6cb0', backgroundColor:'rgba(43,108,176,0.1)', tension:0.3 }] },
+    options:{ responsive:true, plugins:{ legend:{ display:true } }, scales:{ y:{ beginAtZero:true } } }
   });
 }
 
@@ -109,37 +198,49 @@ function init(){
   renderAnimalInfo();
   animal.vaccinations = animal.vaccinations||[];
   animal.treatments = animal.treatments||[];
+  animal.weightHistory = animal.weightHistory||[
+    { date: "2025-01-01", weight: 120 },
+    { date: "2025-02-01", weight: 135 }
+  ];
+
   renderTable('vaccinations', animal.vaccinations);
   renderTable('treatments', animal.treatments);
+  renderTable('weights', animal.weightHistory);
 
-  document.getElementById('addVaccine').addEventListener('click', ()=>{
+  document.getElementById('addVaccine').addEventListener('click',()=>{
     const name = document.getElementById('vName').value.trim();
     const date = document.getElementById('vDate').value;
     const notes = document.getElementById('vNotes').value.trim();
     if(!name || !date) return alert('Լրացրեք անունն ու ամսաթիվը');
     animal.vaccinations.push({name,date,notes});
-    saveAnimals();
-    renderTable('vaccinations', animal.vaccinations);
+    saveAnimals(); renderTable('vaccinations', animal.vaccinations);
     document.getElementById('vName').value=''; document.getElementById('vDate').value=''; document.getElementById('vNotes').value='';
   });
 
-  document.getElementById('addTreatment').addEventListener('click', ()=>{
+  document.getElementById('addTreatment').addEventListener('click',()=>{
     const name = document.getElementById('tName').value.trim();
     const date = document.getElementById('tDate').value;
     const notes = document.getElementById('tNotes').value.trim();
     if(!name || !date) return alert('Լրացրեք անունն ու ամսաթիվը');
     animal.treatments.push({name,date,notes});
-    saveAnimals();
-    renderTable('treatments', animal.treatments);
+    saveAnimals(); renderTable('treatments', animal.treatments);
     document.getElementById('tName').value=''; document.getElementById('tDate').value=''; document.getElementById('tNotes').value='';
+  });
+
+  document.getElementById('addWeight').addEventListener('click',()=>{
+    const date = document.getElementById('wDate').value;
+    const weight = parseFloat(document.getElementById('wWeight').value);
+    if(!date || !weight) return alert('Լրացրեք ամսաթիվը և քաշը');
+    animal.weightHistory.push({date,weight});
+    saveAnimals(); renderTable('weights', animal.weightHistory);
+    document.getElementById('wDate').value=''; document.getElementById('wWeight').value='';
   });
 
   document.querySelector('#vaccinations tbody').addEventListener('click', e=>{
     if(e.target.tagName==='BUTTON'){
       const idx = e.target.dataset.index;
       animal.vaccinations.splice(idx,1);
-      saveAnimals();
-      renderTable('vaccinations', animal.vaccinations);
+      saveAnimals(); renderTable('vaccinations', animal.vaccinations);
     }
   });
 
@@ -147,8 +248,15 @@ function init(){
     if(e.target.tagName==='BUTTON'){
       const idx = e.target.dataset.index;
       animal.treatments.splice(idx,1);
-      saveAnimals();
-      renderTable('treatments', animal.treatments);
+      saveAnimals(); renderTable('treatments', animal.treatments);
+    }
+  });
+
+  document.querySelector('#weights tbody').addEventListener('click', e=>{
+    if(e.target.tagName==='BUTTON'){
+      const idx = e.target.dataset.index;
+      animal.weightHistory.splice(idx,1);
+      saveAnimals(); renderTable('weights', animal.weightHistory);
     }
   });
 }

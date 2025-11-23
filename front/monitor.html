@@ -24,6 +24,11 @@ canvas { background:#fff; border-radius:12px; padding:10px; }
     <h1>Պատվաստումներ և բուժումներ</h1>
     <canvas id="treatmentChart" width="500" height="400"></canvas>
   </div>
+
+  <div class="card">
+    <h1>Ֆերմայի կենդանիների քաշի փոփոխություններ</h1>
+    <canvas id="weightChart" width="500" height="400"></canvas>
+  </div>
 </div>
 
 <script>
@@ -48,7 +53,7 @@ function ageFromBirth(birth){
   return years;
 }
 
-// --- Stacked Bar Chart (Տարիք / Սեռ / Տեսակ)
+// --- Main Chart
 const ctxMain = document.getElementById('mainChart').getContext('2d');
 const types = ['Կով','Հորթ','Երինջ','Մոզի','Ցուլ'];
 const genders = ['արու','էգ'];
@@ -90,7 +95,7 @@ const mainChart = new Chart(ctxMain,{
   }
 });
 
-// --- Pie/Doughnut Chart (Պատվաստումներ և Բուժումներ)
+// --- Treatment Chart
 const ctxTreatment = document.getElementById('treatmentChart').getContext('2d');
 
 function prepareTreatmentData(){
@@ -128,7 +133,58 @@ const treatmentChart = new Chart(ctxTreatment,{
   options:{ responsive:false, plugins:{ legend:{ position:'bottom' } } }
 });
 
-// --- Թարմացնել հիմնական գրաֆիկը
+// --- Weight Chart (Ֆերմայի բոլոր կենդանիները)
+const ctxWeight = document.getElementById('weightChart').getContext('2d');
+
+function prepareWeightChartData(){
+  const datasets = [];
+  const labelsSet = new Set();
+
+  animals.forEach(a=>{
+    if(a.weightHistory && a.weightHistory.length){
+      a.weightHistory.forEach(w=> labelsSet.add(w.date));
+    }
+  });
+
+  const labels = Array.from(labelsSet).sort();
+
+  animals.forEach(a=>{
+    if(a.weightHistory && a.weightHistory.length){
+      const data = labels.map(d=>{
+        const w = a.weightHistory.find(w=>w.date===d);
+        return w ? w.weight : null;
+      });
+      datasets.push({
+        label: a.tagId,
+        data: data,
+        borderColor: `hsl(${Math.random()*360},70%,50%)`,
+        backgroundColor: 'transparent',
+        tension:0.3,
+        spanGaps:true
+      });
+    }
+  });
+
+  return { labels, datasets };
+}
+
+const weightData = prepareWeightChartData();
+const weightChart = new Chart(ctxWeight,{
+  type:'line',
+  data:{
+    labels: weightData.labels,
+    datasets: weightData.datasets
+  },
+  options:{
+    responsive:false,
+    scales:{
+      y:{ beginAtZero:false, title:{ display:true, text:'Քաշ (կգ)' } },
+      x:{ title:{ display:true, text:'Ամսաթիվ' } }
+    }
+  }
+});
+
+// --- Թարմացնել բոլոր գրաֆիկները
 function updateCharts(){
   mainChart.data.datasets = prepareMainDatasets();
   mainChart.update();
@@ -137,6 +193,11 @@ function updateCharts(){
   treatmentChart.data.labels = td.labels;
   treatmentChart.data.datasets[0].data = td.data;
   treatmentChart.update();
+
+  const wd = prepareWeightChartData();
+  weightChart.data.labels = wd.labels;
+  weightChart.data.datasets = wd.datasets;
+  weightChart.update();
 }
 
 updateCharts();
