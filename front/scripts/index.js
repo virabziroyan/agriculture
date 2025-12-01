@@ -64,5 +64,10 @@ function goBack() {
 
 // Բացել համապատասխան էջ (page1.html ... page8.html)
 function openPage(num) {
-    window.location.href = `page${num}.html`;
+    if (num == 1) {
+        window.location.href = `tvyalneri mutq.html`;
+    }
+    else {
+        window.location.href = `page${num}.html`;
+    }
 }
