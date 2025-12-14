@@ -14,6 +14,7 @@ canvas { background:#fff; border-radius:12px; padding:10px; }
 </style>
 </head>
 <body>
+
 <div class="container">
   <div class="card">
     <h1>Տարիք / Սեռ / Տեսակ գրաֆիկ</h1>
@@ -32,10 +33,9 @@ canvas { background:#fff; border-radius:12px; padding:10px; }
 </div>
 
 <script>
-const STORAGE_KEY = 'farm_animals_v1';
+const STORAGE_KEY = 'farm_animals_v2';
 let animals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
 
-// --- Տարիք խմբավորումներ
 function getAgeGroup(age){
   if(age<=1) return '0-1';
   if(age<=3) return '2-3';
@@ -55,14 +55,18 @@ function ageFromBirth(birth){
 
 // --- Main Chart
 const ctxMain = document.getElementById('mainChart').getContext('2d');
-const types = ['Կով','Հորթ','Երինջ','Մոզի','Ցուլ'];
+const types = ['Կով','Հորթ','Երինջ','Ցուլ','Մոզի'];
 const genders = ['արու','էգ'];
 const ageGroups = ['0-1','2-3','4-5','5+'];
 
 function prepareMainDatasets(){
   const datasets=[];
   genders.forEach((gender,i)=>{
-    const data = types.map(t=>animals.filter(a=>a.type===t && a.sex===gender).length);
+    const data = types.map(t=>animals.filter(a=>{
+      let type=a.type;
+      if(type==='Երինջ' && a.sex==='արու') type='Ցուլ';
+      return type===t && a.sex===gender;
+    }).length);
     datasets.push({
       label:`Սեռ: ${gender}`,
       data,
@@ -73,7 +77,11 @@ function prepareMainDatasets(){
   });
 
   ageGroups.forEach((age,i)=>{
-    const data = types.map(t=>animals.filter(a=>a.type===t && getAgeGroup(ageFromBirth(a.birthDate))===age).length);
+    const data = types.map(t=>animals.filter(a=>{
+      let type=a.type;
+      if(type==='Երինջ' && a.sex==='արու') type='Ցուլ';
+      return type===t && getAgeGroup(ageFromBirth(a.birthDate))===age;
+    }).length);
     datasets.push({
       label:`Տարիք: ${age}`,
       data,
@@ -133,7 +141,7 @@ const treatmentChart = new Chart(ctxTreatment,{
   options:{ responsive:false, plugins:{ legend:{ position:'bottom' } } }
 });
 
-// --- Weight Chart (Ֆերմայի բոլոր կենդանիները)
+// --- Weight Chart
 const ctxWeight = document.getElementById('weightChart').getContext('2d');
 
 function prepareWeightChartData(){
@@ -150,10 +158,7 @@ function prepareWeightChartData(){
 
   animals.forEach(a=>{
     if(a.weightHistory && a.weightHistory.length){
-      const data = labels.map(d=>{
-        const w = a.weightHistory.find(w=>w.date===d);
-        return w ? w.weight : null;
-      });
+      const data = labels.map(d=>{ const w = a.weightHistory.find(w=>w.date===d); return w ? w.weight : null; });
       datasets.push({
         label: a.tagId,
         data: data,
@@ -185,22 +190,13 @@ const weightChart = new Chart(ctxWeight,{
 });
 
 // --- Թարմացնել բոլոր գրաֆիկները
-function updateCharts(){
-  mainChart.data.datasets = prepareMainDatasets();
-  mainChart.update();
-
-  const td = prepareTreatmentData();
-  treatmentChart.data.labels = td.labels;
-  treatmentChart.data.datasets[0].data = td.data;
-  treatmentChart.update();
-
-  const wd = prepareWeightChartData();
-  weightChart.data.labels = wd.labels;
-  weightChart.data.datasets = wd.datasets;
-  weightChart.update();
+function updateAll(){
+  mainChart.data.datasets = prepareMainDatasets(); mainChart.update();
+  const td = prepareTreatmentData(); treatmentChart.data.labels = td.labels; treatmentChart.data.datasets[0].data = td.data; treatmentChart.update();
+  const wd = prepareWeightChartData(); weightChart.data.labels = wd.labels; weightChart.data.datasets = wd.datasets; weightChart.update();
 }
 
-updateCharts();
+updateAll();
 </script>
 </body>
 </html>

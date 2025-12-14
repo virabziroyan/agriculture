@@ -19,7 +19,6 @@
   .back-btn { display:inline-block; padding:8px 14px; background:#2b6cb0; color:#fff; border-radius:6px; text-decoration:none; margin-bottom:20px; }
   canvas { background:#fff; border-radius:12px; padding:10px; box-shadow:0 4px 12px rgba(0,0,0,0.06); margin-top:20px; }
   img.animal-img { max-width:200px; border-radius:8px; margin-top:10px; cursor:pointer; }
-  /* Modal styles */
   .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
   .modal img { max-width:90%; max-height:90%; border-radius:10px; }
   .modal .close { position:absolute; top:20px; right:30px; font-size:28px; color:#fff; cursor:pointer; }
@@ -81,28 +80,52 @@
   </div>
 </div>
 
-<!-- Modal for image -->
 <div id="imgModal" class="modal">
   <span class="close">&times;</span>
   <img id="modalImg" src="">
 </div>
 
-<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
 const tagId = getQueryParam('tagId');
-const STORAGE_KEY = 'farm_animals_v1';
+const STORAGE_KEY = 'farm_animals_v2';
 let animals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
 let animal = animals.find(a=>a.tagId===tagId);
 
 function saveAnimals(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(animals)); }
 
+function calculateAge(birth){
+  if(!birth) return 0;
+  const b = new Date(birth);
+  const now = new Date();
+  let years = now.getFullYear()-b.getFullYear();
+  if(now.getMonth()<b.getMonth() || (now.getMonth()===b.getMonth() && now.getDate()<b.getDate())) years--;
+  return years;
+}
+
+const typeRules = [
+  { min:0, max:1, type:'Հորթ' },
+  { min:1, max:3, type:'Երինջ' },
+  { min:3, max:100, type:'Կով' }
+];
+
+function getTypeByAge(ageYears){
+  for(let rule of typeRules){
+    if(ageYears>=rule.min && ageYears<rule.max) return rule.type;
+  }
+  return 'Անհայտ';
+}
+
 function renderAnimalInfo(){
   if(!animal){ document.getElementById('animalInfo').innerHTML='<p>Կենդանի չի գտնվել</p>'; return; }
+
+  const age = calculateAge(animal.birthDate);
+  const typeByAge = getTypeByAge(age);
+
   document.getElementById('animalInfo').innerHTML=`
     <p><strong>ID:</strong> ${animal.tagId}</p>
-    <p><strong>Տեսակ:</strong> ${animal.type}</p>
+    <p><strong>Տեսակ:</strong> ${typeByAge} <span class="small">(տարիք: ${age} տ.)</span></p>
     <p><strong>Տոհմ:</strong> ${animal.breed||''}</p>
     <p><strong>Սեռ:</strong> ${animal.sex}</p>
     <p><strong>Ծննդյան ամսաթիվ:</strong> ${animal.birthDate||''}</p>
@@ -161,7 +184,6 @@ function renderAnimalInfo(){
 document.querySelector('.modal .close').addEventListener('click',()=>{ document.getElementById('imgModal').style.display='none'; });
 document.getElementById('imgModal').addEventListener('click', e=>{ if(e.target.id==='imgModal') e.currentTarget.style.display='none'; });
 
-// Rest of original code (vaccinations, treatments, weights, chart)
 function renderTable(tableId, items){
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML='';
@@ -198,10 +220,7 @@ function init(){
   renderAnimalInfo();
   animal.vaccinations = animal.vaccinations||[];
   animal.treatments = animal.treatments||[];
-  animal.weightHistory = animal.weightHistory||[
-    { date: "2025-01-01", weight: 120 },
-    { date: "2025-02-01", weight: 135 }
-  ];
+  animal.weightHistory = animal.weightHistory||[{ date: "2025-01-01", weight: 120 }, { date: "2025-02-01", weight: 135 }];
 
   renderTable('vaccinations', animal.vaccinations);
   renderTable('treatments', animal.treatments);

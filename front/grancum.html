@@ -6,13 +6,13 @@
 <title>Կենդանիների մուտքագրում — Բազա</title>
 <style>
   :root{--bg:#f7f9fc;--card:#fff;--accent:#2b6cb0;--danger:#e53e3e}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#222}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#222;position:relative}
   .container{max-width:980px;margin:36px auto;padding:18px}
   h1{margin:0 0 12px;font-size:20px}
-  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,60,0.06)}
-  form{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,60,0.06);margin-bottom:20px;}
+  form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end}
   label{display:block;font-size:12px;margin-bottom:6px;color:#444}
-  input[type=text], input[type=date], select{width:100%;padding:8px;border-radius:6px;border:1px solid #dfe7ef}
+  input[type=text], input[type=date]{width:100%;padding:8px;border-radius:6px;border:1px solid #dfe7ef}
   .actions{display:flex;gap:8px}
   button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
   button.warning{background:#4a5568}
@@ -24,10 +24,56 @@
   .right{text-align:right}
   a.tag-link{color:#2b6cb0;text-decoration:underline;cursor:pointer;}
   #chartContainer{margin-top:20px;display:none;}
-  @media(max-width:800px){form{grid-template-columns:1fr} .actions{justify-content:flex-end}}
+  
+  #oneYearBox{
+    position:absolute;
+    top:15px;
+    left:15px;
+    background:#fff;
+    padding:12px 16px;
+    border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+    max-width:220px;
+    font-size:14px;
+    line-height:1.4;
+  }
+
+  #heavyCalvesBox{
+    position:absolute;
+    bottom:15px;
+    left:15px;
+    background:#fff;
+    padding:12px 16px;
+    border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+    max-width:220px;
+    font-size:14px;
+    line-height:1.4;
+  }
+
+  @media(max-width:800px){
+    form{grid-template-columns:1fr} 
+    .actions{justify-content:flex-end}
+    #oneYearBox, #heavyCalvesBox{position:static;margin-bottom:15px;}
+  }
 </style>
 </head>
 <body>
+
+<div id="oneYearBox">
+  <strong>1 տարեկան կենդանիներ</strong>
+  <ul id="oneYearList">
+    <li>Դատարկ է</li>
+  </ul>
+</div>
+
+<div id="heavyCalvesBox">
+  <strong>200-250 կգ քաշ ունեցող ցլեր</strong>
+  <ul id="heavyCalvesList">
+    <li>Դատարկ է</li>
+  </ul>
+</div>
+
 <div class="container">
   <h1>Տվյալների գրանցում</h1>
 
@@ -36,17 +82,6 @@
       <div>
         <label for="tagId">Կենդանու ID</label>
         <input id="tagId" type="text" placeholder="օր. 1001" required>
-      </div>
-
-      <div>
-        <label for="type">Տեսակ</label>
-        <select id="type">
-          <option value="Կով">Կով</option>
-          <option value="Հորթ">Հորթ</option>
-          <option value="Երինջ">Երինջ</option>
-          <option value="Մոզի">Մոզի</option>
-          <option value="Ցուլ">Ցուլ</option>
-        </select>
       </div>
 
       <div>
@@ -99,17 +134,34 @@
 <script>
 const form = document.getElementById('animalForm');
 const tagIdInput = document.getElementById('tagId');
-const typeInput = document.getElementById('type');
 const breedInput = document.getElementById('breed');
 const sexInput = document.getElementById('sex');
 const birthInput = document.getElementById('birthDate');
 const saveBtn = document.getElementById('saveBtn');
 const clearBtn = document.getElementById('clearBtn');
 const tbody = document.querySelector('#animalsTable tbody');
-const STORAGE_KEY = 'farm_animals_v1';
+const oneYearList = document.getElementById('oneYearList');
+const heavyCalvesList = document.getElementById('heavyCalvesList');
+const STORAGE_KEY = 'farm_animals_v2';
 let animals = [];
 let editingId = null;
 let growthChartInstance = null;
+
+const typeRules = [
+  { min:0, max:1, type:'Հորթ' },
+  { min:1, max:3, type:'Երինջ' }, // Արուների դեպքում փոխվելու է ցուլ
+  { min:3, max:100, type:'Կով' }
+];
+
+function getTypeByAge(ageYears, sex){
+  for(let rule of typeRules){
+    if(ageYears>=rule.min && ageYears<rule.max){
+      if(rule.type === 'Երինջ' && sex==='արու') return 'Ցուլ';
+      return rule.type;
+    }
+  }
+  return 'Անհայտ';
+}
 
 function load() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -120,20 +172,20 @@ function saveStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(animals));
 }
 
-function ageFrom(birth) {
-  if (!birth) return '';
+function ageFrom(birth){
+  if(!birth) return '';
   const b = new Date(birth);
   const now = new Date();
   let years = now.getFullYear() - b.getFullYear();
   let months = now.getMonth() - b.getMonth();
   let days = now.getDate() - b.getDate();
-  if (days < 0) months--;
-  if (months < 0) { years--; months+=12; }
+  if(days<0) months--;
+  if(months<0){ years--; months+=12; }
   const parts=[];
   if(years) parts.push(years+' տ.');
   if(months) parts.push(months+' ամ');
   if(!parts.length) parts.push('0 ամ');
-  return parts.join(' ');
+  return {years, display:parts.join(' ')}; 
 }
 
 function escapeHtml(str){
@@ -141,45 +193,60 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
 }
 
-function render() {
-  tbody.innerHTML = '';
-  if (!animals.length) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="7" class="small">Հերթը դեռ դատարկ է — ավելացրեք կենդանու տվյալներ</td>';
-    tbody.appendChild(tr);
-    return;
-  }
+function updateOneYearBox(){
+  const list = animals.filter(a=>ageFrom(a.birthDate).years>=1);
+  oneYearList.innerHTML = '';
+  if(!list.length){ oneYearList.innerHTML='<li>Դատարկ է</li>'; return; }
+  list.forEach(a=>{ const li=document.createElement('li'); li.textContent=`${a.tagId} (${a.type})`; oneYearList.appendChild(li); });
+}
 
-  animals.forEach(a=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><a class="tag-link" href="animal_info.html?tagId=${encodeURIComponent(a.tagId)}">${escapeHtml(a.tagId)}</a></td>
-      <td>${escapeHtml(a.type)}</td>
-      <td>${escapeHtml(a.breed||'')}</td>
-      <td>${escapeHtml(a.sex)}</td>
-      <td>${a.birthDate||''}</td>
-      <td>${ageFrom(a.birthDate)}</td>
-      <td class="right">
-        <button data-action="edit" data-id="${a.tagId}">Խմբագրել</button>
-        <button data-action="del" data-id="${a.tagId}" class="danger">Ջնջել</button>
-        <button data-action="growth" data-id="${a.tagId}" 
-            style="margin-left:5px;background:#38a169;color:#fff;border-radius:5px;padding:4px 6px;border:0;cursor:pointer;">
-          Աճի գրաֆիկ
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+function updateHeavyCalvesBox(){
+  const list = animals.filter(a=>{
+    if(!a.weightHistory || !a.weightHistory.length) return false;
+    const latestWeight = a.weightHistory[a.weightHistory.length-1].weight;
+    return latestWeight>=200 && latestWeight<=250;
+  });
+  heavyCalvesList.innerHTML = '';
+  if(!list.length){ heavyCalvesList.innerHTML='<li>Դատարկ է</li>'; return; }
+  list.forEach(a=>{
+    const li=document.createElement('li');
+    li.textContent = `${a.tagId} (${a.type}) - վերջին քաշը: ${a.weightHistory[a.weightHistory.length-1].weight} կգ`;
+    heavyCalvesList.appendChild(li);
   });
 }
 
-function resetForm() { form.reset(); editingId=null; saveBtn.textContent='Ավելացնել'; }
+function render() {
+  tbody.innerHTML = '';
+  if(!animals.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="small">Հերթը դեռ դատարկ է — ավելացրեք կենդանու տվյալներ</td></tr>';
+  } else {
+    animals.forEach(a=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><a class="tag-link" href="animal_info.html?tagId=${encodeURIComponent(a.tagId)}">${escapeHtml(a.tagId)}</a></td>
+        <td>${escapeHtml(a.type)}</td>
+        <td>${escapeHtml(a.breed||'')}</td>
+        <td>${escapeHtml(a.sex)}</td>
+        <td>${a.birthDate||''}</td>
+        <td>${ageFrom(a.birthDate).display}</td>
+        <td class="right">
+          <button data-action="edit" data-id="${a.tagId}">Խմբագրել</button>
+          <button data-action="del" data-id="${a.tagId}" class="danger">Ջնջել</button>
+          <button data-action="growth" data-id="${a.tagId}" style="margin-left:5px;background:#38a169;color:#fff;border-radius:5px;padding:4px 6px;border:0;cursor:pointer;">Աճի գրաֆիկ</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  updateOneYearBox();
+  updateHeavyCalvesBox();
+}
+
+function resetForm(){ form.reset(); editingId=null; saveBtn.textContent='Ավելացնել'; }
 
 function showGrowthChart(tagId){
   const animal = animals.find(a=>a.tagId===tagId);
-  if(!animal || !animal.weightHistory || !animal.weightHistory.length) {
-    alert('Քաշի տվյալներ չկան');
-    return;
-  }
+  if(!animal || !animal.weightHistory || !animal.weightHistory.length) { alert('Քաշի տվյալներ չկան'); return; }
 
   const ctx = document.getElementById('growthChart').getContext('2d');
   const dates = animal.weightHistory.map(w=>w.date);
@@ -189,16 +256,7 @@ function showGrowthChart(tagId){
 
   growthChartInstance = new Chart(ctx,{
     type:'line',
-    data:{
-      labels:dates,
-      datasets:[{
-        label:'Քաշ (կգ)',
-        data:weights,
-        fill:false,
-        borderColor:'#38a169',
-        tension:0.1
-      }]
-    },
+    data:{ labels:dates, datasets:[{label:'Քաշ (կգ)', data:weights, fill:false, borderColor:'#38a169', tension:0.1}] },
     options:{responsive:true, plugins:{legend:{display:true}}}
   });
 
@@ -210,7 +268,11 @@ form.addEventListener('submit', e=>{
   const tagId=tagIdInput.value.trim();
   if(!tagId) return alert('Մուտքագրեք կենդանու ID');
 
-  const obj={ tagId, type:typeInput.value, breed:breedInput.value.trim(), sex:sexInput.value, birthDate:birthInput.value||'', weightHistory:[{date:"2025-01-01",weight:100}] };
+  const sex = sexInput.value;
+  const age = ageFrom(birthInput.value).years;
+  const type = getTypeByAge(age, sex);
+
+  const obj={ tagId, type, breed:breedInput.value.trim(), sex:sex, birthDate:birthInput.value||'', weightHistory:[{date:"2025-01-01",weight:100}] };
 
   if(editingId){
     const idx = animals.findIndex(x=>x.tagId===editingId);
@@ -235,7 +297,6 @@ tbody.addEventListener('click', e=>{
     const item=animals.find(x=>x.tagId===id);
     if(!item) return;
     tagIdInput.value=item.tagId;
-    typeInput.value=item.type;
     breedInput.value=item.breed||'';
     sexInput.value=item.sex;
     birthInput.value=item.birthDate;

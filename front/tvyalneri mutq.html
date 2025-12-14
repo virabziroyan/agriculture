@@ -4,67 +4,190 @@
 <meta charset="UTF-8">
 <title>Ընտրել բաժինը</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #edf2f7;
-    }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #edf2f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-    .popup {
-        background: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        width: 350px;
-        text-align: left;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+/* ՎԵՐԵՎԻ ՁԱԽ — ՄԱՐԶԵՐ */
+.region-box {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #fff;
+    padding: 18px 20px 22px;
+    width: 260px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
 
-        /* ՎԵՐԵՎԻ ՁԱԽ ԱՆԿՅՈՒՆ */
-        position: absolute;
-        top: 10px;
-        left: 10px;
-    }
+.region-box h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    color: #2d3748;
+}
 
-    /* ՄԵԾԱՑՎԱԾ ՏԵՔՍՏ */
-    h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: #2d3748;
-        font-size: 26px;
-        font-weight: bold;
-    }
+.region-box select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    font-size: 15px;
+    margin-bottom: 14px;
+}
 
-    .btn {
-        display: block; /* ամբողջ լայնությունը զբաղեցնի */
-        width: 100%;
-        padding: 14px;
-        margin: 10px 0;
-        border: none;
-        cursor: pointer;
-        border-radius: 8px;
-        background: #2b6cb0;
-        color: #fff;
-        font-size: 18px;
-        text-align: left;
-        text-decoration: none; /* հղում լինի կոճակի տեսք */
-        transition: 0.2s;
-    }
+.temperature {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+    padding: 12px;
+    display: none;
+    color: #2d3748;
+    border-radius: 8px;
+}
 
-    .btn:hover {
-        background: #1e4e7a;
-    }
+/* Գրաֆիկի պահոցը ջերմաստիճանի ներքևում */
+#chartContainer {
+    margin-top: 10px;
+    display: none; 
+}
+
+/* ԿԵՆՏՐՈՆԱԿԱՆ ՄԵՆՅՈՒ */
+.popup {
+    background: #fff;
+    padding: 50px;
+    border-radius: 16px;
+    width: 480px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 40px;
+    color: #2d3748;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 12px;
+    background: #2b6cb0;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #1e4e7a;
+}
 </style>
-
 </head>
+
 <body>
 
-<div class="popup">
-    <h2>Ընտրեք բաժինը</h2>
+<!-- ՎԵՐԵՎԻ ՁԱԽ -->
+<div class="region-box">
+    <h3>Ընտրեք մարզը</h3>
+    <select onchange="updateRegion(this.value)">
+        <option value="">— ընտրել —</option>
+        <option>Գեղարքունիք</option>
+        <option>Արարատ</option>
+        <option>Արմավիր</option>
+        <option>Տավուշ</option>
+        <option>Լոռի</option>
+        <option>Շիրակ</option>
+        <option>Սյունիք</option>
+    </select>
 
-    <!-- Այստեղ ուղղակի փոխիր href-ի անունը քո էջի անունով -->
+    <div class="temperature" id="tempText"></div>
+
+    <div id="chartContainer">
+        <canvas id="tempChart" width="260" height="150"></canvas>
+    </div>
+</div>
+
+<!-- ԿԵՆՏՐՈՆԱԿԱՆ ՄԵՆՅՈՒ -->
+<div class="popup" id="popup">
+    <h2>Ընտրեք բաժինը</h2>
     <a href="grancum.html" class="btn">Մուտքագրել տվյալներ</a>
     <a href="monitor.html" class="btn">Մոնիթորինգ</a>
 </div>
+
+<script>
+const tempText = document.getElementById('tempText');
+const chartContainer = document.getElementById('chartContainer');
+const ctx = document.getElementById('tempChart').getContext('2d');
+
+let chart = new Chart(ctx, {
+    type: 'line',
+    data: { 
+        labels: [], 
+        datasets: [{ 
+            label: 'Ջերմաստիճան °C', 
+            data: [], 
+            borderColor: '#2b6cb0', 
+            backgroundColor: 'rgba(43,108,176,0.2)', 
+            tension: 0.4 
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: false } } }
+});
+
+function updateRegion(region) {
+    if (!region) {
+        tempText.style.display = 'none';
+        tempText.style.background = '';
+        chartContainer.style.display = 'none';
+        chart.data.labels = [];
+        chart.data.datasets[0].data = [];
+        chart.update();
+        return;
+    }
+
+    // Ջերմաստիճան
+    const temp = Math.floor(Math.random() * 21) + 10; 
+    tempText.innerText = `Ջերմաստիճան՝ ${temp}°C`;
+    tempText.style.display = 'block';
+
+    // Ջերմաստիճանի բլոկի ֆոնը մարզից կախված
+    const bgColors = {
+        "Գեղարքունիք": "#ffe5e5",
+        "Արարատ": "#fff5e5",
+        "Արմավիր": "#e5fff5",
+        "Տավուշ": "#e5e5ff",
+        "Լոռի": "#f5e5ff",
+        "Շիրակ": "#ffffe5",
+        "Սյունիք": "#ffe5ff"
+    };
+    tempText.style.background = bgColors[region] || "#fff";
+
+    // Ստեղծել 7 օրվա գրաֆիկ (պատահական)
+    const days = ['Եր', 'Երք', 'Չր', 'Հնգ', 'Ուրբ', 'Շբթ', 'Կիր'];
+    const data = Array.from({length: 7}, () => Math.floor(Math.random() * 21) + 10);
+
+    chart.data.labels = days;
+    chart.data.datasets[0].data = data;
+    chart.update();
+
+    chartContainer.style.display = 'block';
+}
+</script>
 
 </body>
 </html>
