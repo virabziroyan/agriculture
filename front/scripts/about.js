@@ -53,6 +53,7 @@ function showWelcome() {
     welcomeDiv.style.display = "flex";
 }
 
+
 // ԽԵԿ սեղմելիս
 khekBtn.addEventListener("click", () => { welcomeDiv.style.display = "none"; khekPage.style.display = "flex"; });
 
@@ -66,3 +67,4 @@ function goBack() {
 function openPage(num) {
     window.location.href = `page${num}.html`;
 }
+

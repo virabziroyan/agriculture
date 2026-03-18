@@ -57,16 +57,19 @@
     <div class="welcome" id="welcomeDiv">
         <button id="userBtn">Օգտատիրոջ տվյալները</button>
         <div class="main-sections">
-            <div class="section-box" id="khekBtn">ԽԵԿ</div>
-            <div class="section-box">Այծ/Ոչխար</div>
-            <div class="section-box">Խոզ</div>
-            <div class="section-box">Հավ/Հնդկահավ</div>
-            <div class="section-box">Ճագար</div>
+
+            <!-- 🔥 ԽԵԿ -->
+            <div class="section-box" onclick="openKhekPage()">ԽԵԿ</div>
+
+            <div class="section-box" onclick="openGoatSheepPage()">Այծ/Ոչխար</div>
+            <div class="section-box" onclick="openPigPage()">Խոզ</div>
+            <div class="section-box" onclick="openPoultryPage()">Հավ/Հնդկահավ</div>
+            <div class="section-box" onclick="openRabbitPage()">Ճագար</div>
         </div>
         <button id="logoutBtn">Ելք</button>
     </div>
 
-    <!-- ԽԵԿ էջ -->
+    <!-- ԽԵԿ էջ (մնում է, չի խանգարում) -->
     <div class="khekPage" id="khekPage">
         <button class="back-btn" onclick="goBack()">Վերադառնալ</button>
         <h2>ԽԵԿ Բաժին</h2>

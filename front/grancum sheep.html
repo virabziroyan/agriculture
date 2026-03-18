@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Կենդանիների մուտքագրում — Բազա</title>
+<title>Այծ / Ոչխար — Մուտքագրում</title>
 <style>
   :root{--bg:#f7f9fc;--card:#fff;--accent:#2b6cb0;--danger:#e53e3e}
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#222;position:relative}
@@ -61,32 +61,32 @@
 <body>
 
 <div id="oneYearBox">
-  <strong>1 տարեկան կենդանիներ</strong>
+  <strong>1 տարեկան այծ/ոչխար</strong>
   <ul id="oneYearList">
     <li>Դատարկ է</li>
   </ul>
 </div>
 
 <div id="heavyCalvesBox">
-  <strong>200-250 կգ քաշ ունեցող ցլեր</strong>
+  <strong>50-100 կգ քաշ ունեցող այծ/ոչխար</strong>
   <ul id="heavyCalvesList">
     <li>Դատարկ է</li>
   </ul>
 </div>
 
 <div class="container">
-  <h1>Տվյալների գրանցում</h1>
+  <h1>Այծ/Ոչխար մուտքագրում</h1>
 
   <div class="card">
     <form id="animalForm">
       <div>
         <label for="tagId">Կենդանու ID</label>
-        <input id="tagId" type="text" placeholder="օր. 1001" required>
+        <input id="tagId" type="text" placeholder="օր. S001" required>
       </div>
 
       <div>
         <label for="breed">Տոհմ</label>
-        <input id="breed" type="text" placeholder="օր. Սիմենթալ">
+        <input id="breed" type="text" placeholder="օր. Դորպեր">
       </div>
 
       <div>
@@ -142,21 +142,25 @@ const clearBtn = document.getElementById('clearBtn');
 const tbody = document.querySelector('#animalsTable tbody');
 const oneYearList = document.getElementById('oneYearList');
 const heavyCalvesList = document.getElementById('heavyCalvesList');
-const STORAGE_KEY = 'farm_animals_v2';
+
+// ✅ Այս էջի տվյալների պահոց՝ առանձին
+const STORAGE_KEY = 'goat_sheep_animals_v1';
+
 let animals = [];
 let editingId = null;
 let growthChartInstance = null;
 
+// Տեսակ ըստ տարիք + սեռ
 const typeRules = [
-  { min:0, max:1, type:'Հորթ' },
-  { min:1, max:3, type:'Երինջ' }, // Արուների դեպքում փոխվելու է ցուլ
-  { min:3, max:100, type:'Կով' }
+  { min:0, max:1, type:'Այծ/Ոչխար ձագ' },
+  { min:1, max:3, type:'' }, // Արուների դեպքում Կոչ
+  { min:3, max:100, type:'Մեծ այծ/ոչխար' }
 ];
 
 function getTypeByAge(ageYears, sex){
   for(let rule of typeRules){
     if(ageYears>=rule.min && ageYears<rule.max){
-      if(rule.type === 'Երինջ' && sex==='արու') return 'Ցուլ';
+      if(rule.type === 'Էգ' && sex==='արու') return 'Ցուլ';
       return rule.type;
     }
   }
@@ -193,6 +197,7 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
 }
 
+// 1 տարեկան ցուցակ
 function updateOneYearBox(){
   const list = animals.filter(a=>ageFrom(a.birthDate).years>=1);
   oneYearList.innerHTML = '';
@@ -200,6 +205,7 @@ function updateOneYearBox(){
   list.forEach(a=>{ const li=document.createElement('li'); li.textContent=`${a.tagId} (${a.type})`; oneYearList.appendChild(li); });
 }
 
+// Քաշով ցուցակ
 function updateHeavyCalvesBox(){
   const list = animals.filter(a=>{
     if(!a.weightHistory || !a.weightHistory.length) return false;
@@ -215,15 +221,16 @@ function updateHeavyCalvesBox(){
   });
 }
 
+// Տեսել աղյուսակը
 function render() {
   tbody.innerHTML = '';
   if(!animals.length){
-    tbody.innerHTML = '<tr><td colspan="7" class="small">Հերթը դեռ դատարկ է — ավելացրեք կենդանու տվյալներ</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="small">Հերթը դեռ դատարկ է — ավելացրեք տվյալներ</td></tr>';
   } else {
     animals.forEach(a=>{
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><a class="tag-link" href="animal_info.html?tagId=${encodeURIComponent(a.tagId)}">${escapeHtml(a.tagId)}</a></td>
+        <td><a class="tag-link" href="#">${escapeHtml(a.tagId)}</a></td>
         <td>${escapeHtml(a.type)}</td>
         <td>${escapeHtml(a.breed||'')}</td>
         <td>${escapeHtml(a.sex)}</td>
@@ -263,6 +270,7 @@ function showGrowthChart(tagId){
   document.getElementById('chartContainer').style.display='block';
 }
 
+// Մուտքագրում
 form.addEventListener('submit', e=>{
   e.preventDefault();
   const tagId=tagIdInput.value.trim();

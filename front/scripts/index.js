@@ -71,3 +71,22 @@ function openPage(num) {
         window.location.href = `page${num}.html`;
     }
 }
+function openKhekPage() {
+    window.location.href = "tvyalneri mutq.html";
+}
+
+function openGoatSheepPage() {
+    window.location.href = "tvyalneri mutq sheep.html";
+}
+
+function openPigPage() {
+    window.location.href = "pig.html";
+}
+
+function openPoultryPage() {
+    window.location.href = "poultry.html";
+}
+
+function openRabbitPage() {
+    window.location.href = "rabbit.html";
+}
