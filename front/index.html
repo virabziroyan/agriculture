@@ -6,86 +6,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Գյուղատնտեսությունը կյանք է</title>
     <link rel="stylesheet" href="styles/index.css">
+
+    <style>
+        .user-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 
 <body>
 
-    <header>
-        <h1>ՖԵՐՄԵՐ</h1>
-        <nav>
-            <a id="goHome">Գլխավոր</a>
-            <a id="aboutBtn">Կայքի մասին</a>
-            <a href="#" id="openLogin">Մուտք</a>
-            <a href="#" id="openRegister">Գրանցվել</a>
-        </nav>
-    </header>
+<header>
+    <h1>ՖԵՐՄԵՐ</h1>
+    <nav>
+        <a id="goHome">Գլխավոր</a>
+        <a id="aboutBtn">Կայքի մասին</a>
+        <a href="#" id="openLogin">Մուտք</a>
+        <a href="#" id="openRegister">Գրանցվել</a>
+    </nav>
+</header>
 
-    <section class="hero" id="heroSection">
-        <div class="about-text" id="aboutText">կայք</div>
-        <h2 id="heroTitle">Գյուղատնտեսությունը կյանք է</h2>
-    </section>
+<section class="hero" id="heroSection">
+    <div class="about-text" id="aboutText">կայք</div>
+    <h2 id="heroTitle">Գյուղատնտեսությունը կյանք է</h2>
+</section>
 
-    <footer>© 2025 Գյուղատնտեսական կայք | Բոլոր իրավունքները պաշտպանված են</footer>
+<footer>© 2025 Գյուղատնտեսական կայք | Բոլոր իրավունքները պաշտպանված են</footer>
 
-    <!-- Մուտք -->
-    <div class="overlay" id="loginOverlay">
-        <div class="modal" id="loginModal">
-            <h2>Մուտք գործել</h2>
-            <input type="email" placeholder="Էլ․ հասցե" required>
-            <input type="password" placeholder="Գաղտնաբառ" required>
-            <button id="loginBtn">Մուտք</button>
-            <p>Դեռ հաշիվ չունե՞ս։ <a href="#" id="switchToRegister">Գրանցվել</a></p>
-        </div>
+<!-- Մուտք -->
+<div class="overlay" id="loginOverlay">
+    <div class="modal" id="loginModal">
+        <h2>Մուտք գործել</h2>
+        <input type="email" placeholder="Էլ․ հասցե" required>
+        <input type="password" placeholder="Գաղտնաբառ" required>
+        <button id="loginBtn">Մուտք</button>
+        <p>Դեռ հաշիվ չունե՞ս։ <a href="#" id="switchToRegister">Գրանցվել</a></p>
+    </div>
+</div>
+
+<!-- Գրանցում -->
+<div class="overlay" id="registerOverlay">
+    <div class="modal" id="registerModal">
+        <h2>Գրանցվել</h2>
+        <input type="text" placeholder="Անուն" required>
+        <input type="text" placeholder="Ազգանուն" required>
+        <input type="email" placeholder="Էլ․ հասցե" required>
+        <input type="tel" placeholder="Հեռ. համար" required>
+        <input type="password" placeholder="Գաղտնաբառ" required>
+        <input type="password" placeholder="Կրկնել գաղտնաբառը" required>
+        <button id="registerBtn">Գրանցվել</button>
+        <p>Արդեն հաշիվ ունե՞ս։ <a href="#" id="switchToLogin">Մուտք</a></p>
+    </div>
+</div>
+
+<!-- Մուտքից հետո բաժիններ -->
+<div class="welcome" id="welcomeDiv">
+    <button id="userBtn" onclick="openUserModal()">Օգտատիրոջ տվյալները</button>
+
+    <div class="main-sections">
+        <div class="section-box" onclick="openKhekPage()">ԽԵԿ</div>
+        <div class="section-box" onclick="openGoatSheepPage()">Այծ/Ոչխար</div>
+        <div class="section-box" onclick="openPigPage()">Խոզ</div>
+        <div class="section-box" onclick="openPoultryPage()">Հավ/Հնդկահավ</div>
+        <div class="section-box" onclick="openRabbitPage()">Ճագար</div>
     </div>
 
-    <!-- Գրանցում -->
-    <div class="overlay" id="registerOverlay">
-        <div class="modal" id="registerModal">
-            <h2>Գրանցվել</h2>
-            <input type="text" placeholder="Անուն" required>
-            <input type="text" placeholder="Ազգանուն" required>
-            <input type="email" placeholder="Էլ․ հասցե" required>
-            <input type="tel" placeholder="Հեռ. համար" required>
-            <input type="password" placeholder="Գաղտնաբառ" required>
-            <input type="password" placeholder="Կրկնել գաղտնաբառը" required>
-            <button id="registerBtn">Գրանցվել</button>
-            <p>Արդեն հաշիվ ունե՞ս։ <a href="#" id="switchToLogin">Մուտք</a></p>
-        </div>
+    <button id="logoutBtn">Ելք</button>
+</div>
+
+<!-- USER MODAL -->
+<div class="user-overlay" id="userOverlay">
+    <div style="background:#fff; padding:30px; border-radius:10px; text-align:center;">
+        <h2>ONE ZET GROUP</h2>
+        <button onclick="closeUserModal()">Փակել</button>
     </div>
+</div>
 
-    <!-- Մուտքից հետո բաժիններ -->
-    <div class="welcome" id="welcomeDiv">
-        <button id="userBtn">Օգտատիրոջ տվյալները</button>
-        <div class="main-sections">
-
-            <!-- 🔥 ԽԵԿ -->
-            <div class="section-box" onclick="openKhekPage()">ԽԵԿ</div>
-
-            <div class="section-box" onclick="openGoatSheepPage()">Այծ/Ոչխար</div>
-            <div class="section-box" onclick="openPigPage()">Խոզ</div>
-            <div class="section-box" onclick="openPoultryPage()">Հավ/Հնդկահավ</div>
-            <div class="section-box" onclick="openRabbitPage()">Ճագար</div>
-        </div>
-        <button id="logoutBtn">Ելք</button>
+<!-- ԽԵԿ էջ -->
+<div class="khekPage" id="khekPage">
+    <button class="back-btn" onclick="goBack()">Վերադառնալ</button>
+    <h2>ԽԵԿ Բաժին</h2>
+    <div class="khek-grid">
+        <div class="khek-card" onclick="openPage(1)">Պատուհան 1</div>
+        <div class="khek-card" onclick="openPage(2)">Պատուհան 2</div>
+        <div class="khek-card" onclick="openPage(3)">Պատուհան 3</div>
+        <div class="khek-card" onclick="openPage(4)">Պատուհան 4</div>
+        <div class="khek-card" onclick="openPage(5)">Պատուհան 5</div>
+        <div class="khek-card" onclick="openPage(6)">Պատուհան 6</div>
+        <div class="khek-card" onclick="openPage(7)">Պատուհան 7</div>
+        <div class="khek-card" onclick="openPage(8)">Պատուհան 8</div>
     </div>
+</div>
 
-    <!-- ԽԵԿ էջ (մնում է, չի խանգարում) -->
-    <div class="khekPage" id="khekPage">
-        <button class="back-btn" onclick="goBack()">Վերադառնալ</button>
-        <h2>ԽԵԿ Բաժին</h2>
-        <div class="khek-grid">
-            <div class="khek-card" onclick="openPage(1)">Պատուհան 1</div>
-            <div class="khek-card" onclick="openPage(2)">Պատուհան 2</div>
-            <div class="khek-card" onclick="openPage(3)">Պատուհան 3</div>
-            <div class="khek-card" onclick="openPage(4)">Պատուհան 4</div>
-            <div class="khek-card" onclick="openPage(5)">Պատուհան 5</div>
-            <div class="khek-card" onclick="openPage(6)">Պատուհան 6</div>
-            <div class="khek-card" onclick="openPage(7)">Պատուհան 7</div>
-            <div class="khek-card" onclick="openPage(8)">Պատուհան 8</div>
-        </div>
-    </div>
+<script src="scripts/index.js"></script>
 
-    <script src="scripts/index.js"></script>
+<script>
+function openUserModal() {
+    document.getElementById("userOverlay").style.display = "flex";
+}
+
+function closeUserModal() {
+    document.getElementById("userOverlay").style.display = "none";
+}
+</script>
+
 </body>
-
 </html>
